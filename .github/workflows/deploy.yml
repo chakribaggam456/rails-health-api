@@ -46,7 +46,6 @@ jobs:
         run: |
           docker push ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:${{ env.IMAGE_TAG }}
 
-      # Install jq BEFORE using it
       - name: Install jq
         run: sudo apt-get update && sudo apt-get install -y jq
 
@@ -59,7 +58,7 @@ jobs:
       - name: Prepare new task definition
         run: |
           jq --arg IMAGE "${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:${{ env.IMAGE_TAG }}" \
-            '.containerDefinitions[0].image = $IMAGE 
+            '.containerDefinitions[0].image = $IMAGE
             | del(.taskDefinitionArn)
             | del(.revision)
             | del(.status)
@@ -70,16 +69,21 @@ jobs:
             task-def.json > new-task-def.json
 
       - name: Register new task definition revision
+        id: register-task
         run: |
-          aws ecs register-task-definition \
-            --cli-input-json file://new-task-def.json
+          TASK_DEF_ARN=$(aws ecs register-task-definition \
+            --cli-input-json file://new-task-def.json \
+            --query "taskDefinition.taskDefinitionArn" \
+            --output text)
 
-      - name: Update ECS service
+          echo "TASK_DEF_ARN=$TASK_DEF_ARN" >> $GITHUB_ENV
+
+      - name: Update ECS service to new revision
         run: |
           aws ecs update-service \
             --cluster $ECS_CLUSTER \
             --service $ECS_SERVICE \
-            --force-new-deployment
+            --task-definition $TASK_DEF_ARN
 
       - name: Wait for deployment to stabilize
         run: |
