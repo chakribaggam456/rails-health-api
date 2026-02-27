@@ -37,3 +37,11 @@ node_modules/
 # Ignore bundled gems
 /vendor/bundle
 
+# Rails master key
+app/config/master.key
+
+# Terraform
+**/.terraform/
+*.tfstate
+*.tfstate.*
+
