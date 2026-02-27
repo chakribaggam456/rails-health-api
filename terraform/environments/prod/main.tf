@@ -13,6 +13,7 @@ module "alb" {
   environment    = var.environment
   vpc_id         = module.vpc.vpc_id
   public_subnets = module.vpc.public_subnets
+  acm_certificate_arn = module.acm.certificate_arn
 }
 
 module "ecr" {
@@ -30,4 +31,10 @@ module "ecs" {
   target_group_arn      = module.alb.target_group_arn
   alb_security_group_id = module.alb.alb_security_group_id
   ecr_repository_url    = module.ecr.repository_url
+}
+
+module "acm" {
+  source = "../../modules/acm"
+
+  domain_name = "baggam.com"
 }
