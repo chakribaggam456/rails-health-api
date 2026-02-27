@@ -10,7 +10,7 @@ env:
   ECR_REPOSITORY: rails-health-api-prod
   ECS_CLUSTER: rails-health-api-prod-cluster
   ECS_SERVICE: rails-health-api-prod-service
-  TASK_DEFINITION: rails-health-api-prod-task
+  TASK_DEFINITION: rails-health-api-prod
   IMAGE_TAG: ${{ github.sha }}
 
 jobs:
