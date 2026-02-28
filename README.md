@@ -39,7 +39,10 @@ Application Load Balancer (HTTPS :443)
 Target Group
    │
    ▼
-ECS Fargate Service
+ECS Fargate 
+   │
+   ▼
+Auto Scaling
    │
    ▼
 Docker Container (Rails API)
@@ -177,7 +180,7 @@ docker build -t rails-health-api ./app
 ### Run
 ```bash
 docker run -p 3000:3000 \
-  -e RAILS_MASTER_KEY=<your_master_key> \
+  -e RAILS_MASTER_KEY=$(cat app/config/master.key) \
   rails-health-api
 ```
 
@@ -236,7 +239,7 @@ GitHub Actions will:
 
 ## Security Notes
 
-This platform includes multiple layers of security by default:
+This platform includes multiple layers of security :
 - HTTPS via ACM certificate and ALB
 - AWS WAF protections
 - ECS tasks running in private subnets
@@ -260,44 +263,7 @@ This platform includes multiple layers of security by default:
 
 ---
 
-## Design Decisions (Interview-Friendly)
 
-### Why ECS Fargate (instead of EC2 / EKS)?
-- **Operational simplicity:** no node groups, no cluster upgrades, no patching worker nodes.
-- **Good fit for stateless APIs:** straightforward task definitions and scaling.
-- **Cost and clarity:** pay for CPU/memory requested per task and keep infra minimal.
-
-### Why an ALB (instead of API Gateway)?
-- **Native integration with ECS target groups** and health checks.
-- **Straightforward HTTPS termination** with ACM.
-- **Better fit for container routing patterns** and path-based routing if the service grows.
-
-### Why Terraform modules?
-- **Reusability:** environments can share the same building blocks (VPC, ECS, ALB, WAF).
-- **Separation of concerns:** networking, compute, and edge concerns are isolated and testable.
-- **Easier maintenance:** changes are localized and easier to review in PRs.
-
-### Why WAF at the edge?
-- **Cheap risk reduction:** blocks common attacks before they reach the service.
-- **Defense-in-depth:** complements TLS, private networking, and least-privilege security groups.
-
-### Why GitHub Actions for CI/CD?
-- **Fast iteration:** tight integration with PRs, reviews, and main-branch protections.
-- **Predictability:** pipeline runs are versioned with the repo.
-- **Least moving parts:** no separate CI server to maintain.
-
----
-
-## Future Improvements
-- Blue/Green deployments (CodeDeploy) to reduce risk during rollouts
-- CloudWatch dashboards + alarms (latency, 5xx, CPU/memory, target health)
-- RDS integration (if persistence is needed)
-- Redis caching
-- Rate limiting via WAF and/or application middleware
-- Observability stack (Datadog / Prometheus / OpenTelemetry)
-
----
 
 ## Author
-**Geethanand Baggam**  
-Cloud / DevOps enthusiast focused on building production-grade infrastructure.
+**Chakrachand Baggam**  
