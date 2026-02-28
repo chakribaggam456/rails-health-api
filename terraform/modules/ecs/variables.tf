@@ -25,3 +25,11 @@ variable "ecr_repository_url" {
 variable "alb_security_group_id" {
   type = string
 }
+
+variable "alb_arn_suffix" {
+  type = string
+}
+
+variable "target_group_arn_suffix" {
+  type = string
+}
